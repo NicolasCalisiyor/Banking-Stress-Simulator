@@ -3,7 +3,6 @@ package simu.model;
 import simu.framework.Kello;
 import simu.framework.Trace;
 
-
 // TODO:
 // Asiakas koodataan simulointimallin edellyttämällä tavalla (data!)
 public class Asiakas {
@@ -12,12 +11,12 @@ public class Asiakas {
 	private int id;
 	private static int i = 1;
 	private static long sum = 0;
-	
-	public Asiakas(){
-	    id = i++;
-	    
+
+	public Asiakas() {
+		id = i++;
+
 		saapumisaika = Kello.getInstance().getAika();
-		Trace.out(Trace.Level.INFO, "Uusi asiakas:" + id + ":"+saapumisaika);
+		Trace.out(Trace.Level.INFO, "Uusi asiakas:" + id + ":" + saapumisaika);
 	}
 
 	public double getPoistumisaika() {
@@ -35,14 +34,19 @@ public class Asiakas {
 	public void setSaapumisaika(double saapumisaika) {
 		this.saapumisaika = saapumisaika;
 	}
+
+	public void raportti() {
+		Trace.out(Trace.Level.INFO, "Asiakas " + id + " saapui:" + saapumisaika);
+		Trace.out(Trace.Level.INFO, "Asiakas " + id + " poistui:" + poistumisaika);
+		Trace.out(Trace.Level.INFO, "Asiakas " + id + " viipyi:" + (poistumisaika - saapumisaika));
+		sum += (poistumisaika - saapumisaika);
+		double keskiarvo = sum / id;
+		System.out.println("Asiakkaiden läpimenoaikojen keskiarvo " + keskiarvo);
+	}
 	
-	public void raportti(){
-		Trace.out(Trace.Level.INFO, "Asiakas "+id+ " saapui:" +saapumisaika);
-		Trace.out(Trace.Level.INFO,"Asiakas "+id+ " poistui:" +poistumisaika);
-		Trace.out(Trace.Level.INFO,"Asiakas "+id+ " viipyi:" +(poistumisaika-saapumisaika));
-		sum += (poistumisaika-saapumisaika);
-		double keskiarvo = sum/id;
-		System.out.println("Asiakkaiden läpimenoaikojen keskiarvo "+ keskiarvo);
+	@Override
+	public String toString() {
+		return String.format("ASIAKAS %d", id);
 	}
 
 }
