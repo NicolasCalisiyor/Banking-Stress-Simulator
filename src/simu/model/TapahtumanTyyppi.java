@@ -5,8 +5,6 @@ package simu.model;
 public enum TapahtumanTyyppi {
 	ARRIVAL,
 	RECEPTION,
-	DAILY_QUEUE,
-	LOAN_QUEUE,
 	DAILY,
 	LOAN
 

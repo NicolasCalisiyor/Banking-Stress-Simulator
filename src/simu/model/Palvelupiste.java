@@ -15,7 +15,10 @@ public class Palvelupiste {
 	
 	private ContinuousGenerator generator;
 	private Tapahtumalista tapahtumalista;
-	private TapahtumanTyyppi skeduloitavanTapahtumanTyyppi; 
+	private TapahtumanTyyppi skeduloitavanTapahtumanTyyppi;
+	private int saapuneetAsiakkaat = 0;
+	private int poistuneetAsiakkaat = 0;
+	private double busyTime = 0;
 	
 	//JonoStartegia strategia; //optio: asiakkaiden järjestys
 	
@@ -31,11 +34,13 @@ public class Palvelupiste {
 
 
 	public void lisaaJonoon(Asiakas a){   // Jonon 1. asiakas aina palvelussa
+		saapuneetAsiakkaat++;
 		jono.add(a);
 		
 	}
 
 	public Asiakas otaJonosta(){  // Poistetaan palvelussa ollut
+		this.poistuneetAsiakkaat++;
 		varattu = false;
 		return jono.poll();
 	}
@@ -43,6 +48,7 @@ public class Palvelupiste {
 	public void aloitaPalvelu(){  //Aloitetaan uusi palvelu, asiakas on jonossa palvelun aikana
 		varattu = true;
 		double palveluaika = generator.sample();
+		busyTime += palveluaika;
 		tapahtumalista.lisaa(new Tapahtuma(skeduloitavanTapahtumanTyyppi,Kello.getInstance().getAika()+palveluaika));
 	}
 
@@ -54,6 +60,22 @@ public class Palvelupiste {
 
 	public boolean onJonossa(){
 		return jono.size() != 0;
+	}
+	
+	public int getSaapuneetAsiakkaat() {
+		return saapuneetAsiakkaat;
+	}
+	
+	public int getPoistuneetAsiakkaat() {
+		return poistuneetAsiakkaat;
+	}
+	
+	public int getPalvelemattomatAsiakkaat() {
+		return saapuneetAsiakkaat - poistuneetAsiakkaat;
+	}
+	
+	public double getBusyTime() {
+		return busyTime;
 	}
 
 }

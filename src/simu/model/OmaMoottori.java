@@ -16,18 +16,20 @@ public class OmaMoottori extends Moottori {
 
 	public OmaMoottori() {
 
-		palvelupisteet = new Palvelupiste[5];
-		/*
-		 * paivittaispalvelut = new Palvelupiste[3];
-		 * lainapalvelut = new Palvelupiste[2];
-		 * 
-		*/
+		palvelupisteet = new Palvelupiste[3];
+		//Palvelupiste[] daily = new Palvelupiste[3];
+		//Palvelupiste[] loan = new Palvelupiste[3];
+		
+		//daily[0] = new Palvelupiste(new Normal(5, 2), tapahtumalista, TapahtumanTyyppi.DAILY);		// Ilmoittautuminen
+		//daily[1] = new Palvelupiste(new Normal(10, 10), tapahtumalista, TapahtumanTyyppi.DAILY);	// Päivittäisraha-asiat
+		//daily[2] = new Palvelupiste(new Normal(5, 3), tapahtumalista, TapahtumanTyyppi.DAILY);		// Lainaraha-asiat
+
+		//loan[0] = new Palvelupiste(new Normal(5, 2), tapahtumalista, TapahtumanTyyppi.LOAN);		// Ilmoittautuminen
+		//loan[1] = new Palvelupiste(new Normal(10, 10), tapahtumalista, TapahtumanTyyppi.LOAN);	// Päivittäisraha-asiat
 
 		palvelupisteet[0] = new Palvelupiste(new Normal(5, 2), tapahtumalista, TapahtumanTyyppi.RECEPTION);		// Ilmoittautuminen
-		palvelupisteet[1] = new Palvelupiste(new Normal(10, 10), tapahtumalista, TapahtumanTyyppi.DAILY_QUEUE);	// Päivittäisraha-asiat
-		palvelupisteet[2] = new Palvelupiste(new Normal(5, 3), tapahtumalista, TapahtumanTyyppi.LOAN_QUEUE);		// Lainaraha-asiat
-		palvelupisteet[3] = new Palvelupiste(new Normal(30, 25), tapahtumalista, TapahtumanTyyppi.DAILY);		// Lainaraha-asiat
-		palvelupisteet[4] = new Palvelupiste(new Normal(50, 10), tapahtumalista, TapahtumanTyyppi.LOAN);		// Lainaraha-asiat
+		palvelupisteet[1] = new Palvelupiste(new Normal(16, 8), tapahtumalista, TapahtumanTyyppi.DAILY);		// Päivittäisraha-asiat
+		palvelupisteet[2] = new Palvelupiste(new Normal(48, 22), tapahtumalista, TapahtumanTyyppi.LOAN);		// Lainaraha-asiat
 
 		saapumisprosessi = new Saapumisprosessi(new Negexp(15, 5), tapahtumalista, TapahtumanTyyppi.ARRIVAL);	// Asiakkaan saapuminen
 
@@ -52,27 +54,19 @@ public class OmaMoottori extends Moottori {
 			a = palvelupisteet[0].otaJonosta();				
 			int distribution = random.nextInt(100 - 1) + 1;	// Asiakkaiden jakauma 1-100
 
-			 if (distribution < 75) {
+			 if (distribution <= 75) {
 			 	palvelupisteet[1].lisaaJonoon(a);			// Päivittäisraha-asioihin
 			 } else {
 			 	palvelupisteet[2].lisaaJonoon(a);			// Lainaraha-asioihin
 			 }
 			break;
-		case DAILY_QUEUE:									// Päivittäisraha-asiat jono
-			a = palvelupisteet[1].otaJonosta();
-			palvelupisteet[3].lisaaJonoon(a);
-			break;
-		case LOAN_QUEUE:									// Päivittäisraha-asiat jono
-			a = palvelupisteet[2].otaJonosta();
-			palvelupisteet[4].lisaaJonoon(a);
-			break;
 		case DAILY:											// Päivittäisraha-asiat
-			a = palvelupisteet[3].otaJonosta();
+			a = palvelupisteet[1].otaJonosta();
 			a.setPoistumisaika(Kello.getInstance().getAika());
 			a.raportti();
 			break;
 		case LOAN:											// Lainaraha-asiat
-			a = palvelupisteet[4].otaJonosta();
+			a = palvelupisteet[2].otaJonosta();
 			a.setPoistumisaika(Kello.getInstance().getAika());
 			a.raportti();
 		}
@@ -80,8 +74,33 @@ public class OmaMoottori extends Moottori {
 
 	@Override
 	protected void tulokset() {
-		System.out.println("\nSimulointi päättyi kello " + Kello.getInstance().getAika());
-		System.out.println("Tulokset ... puuttuvat vielä");
+		int saapuneetDaily = palvelupisteet[1].getSaapuneetAsiakkaat();				// Daily puolelle menneet
+		int poistuneetDaily = palvelupisteet[1].getPoistuneetAsiakkaat();			// Daily puolelta poistuneet
+		int dailyPalvelemattomat = palvelupisteet[1].getPalvelemattomatAsiakkaat();	// Daily asiakkaat, jotka eivät ehtineet palveltavaksi
+		int saapuneetLoan = palvelupisteet[2].getSaapuneetAsiakkaat();				// Loan puolelle menneet
+		int poistuneetLoan = palvelupisteet[2].getPoistuneetAsiakkaat();			// Loan puolelta poistuneet
+		int loanPalvelemattomat = palvelupisteet[2].getPalvelemattomatAsiakkaat();	// Loan asiakkaat, jotka eivät ehtineet palveltavaksi
+		
+		int totalSaapuneet = saapuneetDaily + saapuneetLoan;						// Kaikki saapuneet asiakkaat
+		int totalPoistuneet = poistuneetDaily + poistuneetLoan;						// Kaikki poistuneet asiakkaat
+		int totalPalvelemattomat = totalSaapuneet - totalPoistuneet;				// Kaikki palvelemattomat asiakkaat
+		
+		double saapuneetPerDaily = (1.0 * saapuneetDaily) / totalSaapuneet * 100;	// Daily saapuneet prosenteissa
+		double saapuneetPerLoan = (1.0 * saapuneetLoan) / totalSaapuneet * 100;		// Loan saapuneet prosenteissa
+		
+		double dailyBusytime = palvelupisteet[1].getBusyTime();						// Daily busytime
+		double loanBusytime = palvelupisteet[2].getBusyTime();						// Loan busytime
+		
+		double dailyUtilization = (dailyBusytime / Kello.getInstance().getAika() * 100.0);
+		double loanUtilization = (loanBusytime / Kello.getInstance().getAika()) * 100.0;
+		
+		System.out.println("\nSimulointi päättyi kello " + Kello.getInstance().getAika() + "\n");
+
+		System.out.println("Asiakkaita saapui yhteensä: " + totalSaapuneet);
+		System.out.println("Saapuneiden asiakkaiden jakauma:\n\tDaily: " + Math.round(saapuneetPerDaily * 100.0) / 100.0 + " %\tLoan: " + Math.round(saapuneetPerLoan *100.0) / 100.0 + " %\n");
+		System.out.println("Asiakkaita palveltiin yhteensä: " + totalPoistuneet + "\n\tDaily: " + poistuneetDaily + "\tLoan: " + poistuneetLoan + "\n");
+		System.out.println("Asiakkaita jäi palvelematta yhteensä: " + totalPalvelemattomat + "\n\tDaily: " + dailyPalvelemattomat + "\tLoan: " + loanPalvelemattomat + "\n");
+		System.out.println("Daily käyttöaste: " + Math.round(dailyUtilization * 100.0) / 100.0 + " %\nLoan käyttöaste: " + Math.round(loanUtilization * 100.0) / 100.0 + " %");
 	}
 
 }
