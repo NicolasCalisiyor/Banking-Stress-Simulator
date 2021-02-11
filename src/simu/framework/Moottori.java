@@ -43,7 +43,7 @@ public abstract class Moottori {
 		}
 	}
 
-	private void yritaCTapahtumat() {
+	protected void yritaCTapahtumat() {
 		for (Palvelupiste p : palvelupisteet) {
 			if (!p.onVarattu() && p.onJonossa()) {
 				p.aloitaPalvelu();

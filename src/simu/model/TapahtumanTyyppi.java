@@ -4,8 +4,10 @@ package simu.model;
 // Tapahtumien tyypit määritellään simulointimallin vaatimusten perusteella
 public enum TapahtumanTyyppi {
 	ARRIVAL,
-	RECEPTION,
-	DAILY,
-	LOAN
-
+	DAILY_RECEPTION,
+	BILLING,
+	WITHDRAW_DEPOSIT,
+	LOAN_RECEPTION,
+	HOUSE_LOAN,
+	STUDENT_LOAN
 }
